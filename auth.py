@@ -45,7 +45,7 @@ def get_all_users(current_user):
     for user in users:
         user_data = {}
         user_data['public_id'] = user.public_id
-        user_data['name'] = user.name
+        user_data['email'] = user.email
         user_data['password'] = user.password
         output.append(user_data)
 
@@ -65,9 +65,8 @@ def get_one_user(current_user, public_id):
 
     user_data = {}
     user_data['public_id'] = user.public_id
-    user_data['name'] = user.name
+    user_data['email'] = user.email
     user_data['password'] = user.password
-    user_data['admin'] = user.admin
 
     return jsonify({'user' : user_data})
 
@@ -82,7 +81,7 @@ def create_user(current_user):
 
     hashed_password = generate_password_hash(data['password'], method='sha256')
 
-    new_user = User(public_id=str(uuid.uuid4()), name=data['name'], password=hashed_password, admin=False)
+    new_user = User(public_id=str(uuid.uuid4()), email=data['email'], password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
 
@@ -95,7 +94,7 @@ def login():
     if not auth or not auth.username or not auth.password:
         return make_response('Cannot verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
-    user = User.query.filter_by(name=auth.username).first()
+    user = User.query.filter_by(email=auth.username).first()
 
     if not user:
         return make_response('Cannot verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
