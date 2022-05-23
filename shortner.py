@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, redirect, request
-from flask_login import login_required, current_user
 from models import Link
 from app import db
 from auth import token_required

@@ -31,6 +31,10 @@ def token_required(f):
 
     return decorated
 
+@auth.route('/ping')
+def index():
+    return 'ok'
+
 @auth.route('/user', methods=['GET'])
 @token_required
 def get_all_users(current_user):
@@ -56,7 +60,7 @@ def get_all_users(current_user):
 def get_one_user(current_user, public_id):
 
     if not current_user:
-        return jsonify({'message' : 'utentication failed. Cannot perform that function!'})
+        return jsonify({'message' : 'Autentication failed. Cannot perform that function!'})
 
     user = User.query.filter_by(public_id=public_id).first()
 
