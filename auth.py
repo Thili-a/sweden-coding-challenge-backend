@@ -40,7 +40,7 @@ def index():
 def get_all_users(current_user):
 
     if not current_user:
-        return jsonify({'message' : 'Autentication failed. Cannot perform that function!'})
+        return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
 
     users = User.query.all()
 
@@ -60,12 +60,12 @@ def get_all_users(current_user):
 def get_one_user(current_user, public_id):
 
     if not current_user:
-        return jsonify({'message' : 'Autentication failed. Cannot perform that function!'})
+        return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
 
     user = User.query.filter_by(public_id=public_id).first()
 
     if not user:
-        return jsonify({'message' : 'User Not found!'})
+        return jsonify({'message' : 'User Not found!'}), 404
 
     user_data = {}
     user_data['public_id'] = user.public_id
@@ -79,9 +79,12 @@ def get_one_user(current_user, public_id):
 @token_required
 def create_user(current_user):
     if not current_user:
-        return jsonify({'message' : 'Autentication failed. Cannot perform that function!'})
+        return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
 
     data = request.get_json()
+
+    if not data:
+        return jsonify({'message' : 'New user not created!Please check the input data!'}), 400
 
     hashed_password = generate_password_hash(data['password'], method='sha256')
 
@@ -89,7 +92,23 @@ def create_user(current_user):
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({'message' : 'New user created Succesfully!'})
+    return jsonify({'message' : 'New user created Succesfully!'}), 201
+
+@auth.route('/user/<public_id>', methods=['DELETE'])
+@token_required
+def delete_user(current_user, public_id):
+    if not current_user:
+        return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
+
+    user = User.query.filter_by(public_id=public_id).first()
+
+    if not user:
+        return jsonify({'message' : 'User Not found!'}), 404
+
+    db.session.delete(user)
+    db.session.commit()
+
+    return jsonify({'message' : 'The user has been deleted!'}), 200
 
 @auth.route('/login')
 def login():
