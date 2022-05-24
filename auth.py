@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify,make_response, current_app
+from flask import Blueprint, request, jsonify, make_response, current_app
 from models import User
 from app import db
 from flask_sqlalchemy import SQLAlchemy
@@ -125,6 +125,6 @@ def login():
     if check_password_hash(user.password, auth.password):
         token = jwt.encode({'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, current_app.config['SECRET_KEY'])
 
-        return jsonify({'token' : token})
+        return jsonify({'token' : token.decode('utf-8')})
 
     return make_response('Cannot verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
