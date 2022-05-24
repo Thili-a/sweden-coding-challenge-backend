@@ -6,7 +6,7 @@ This is a URL shortner Flask Application.The task includes the user authenticati
 # Running the Application
 
 - Clone the repository and change to branch ```develop```.
-- In the terminal run the folowing commands to setuop the application in local enviornment.
+- In the terminal run the folowing commands to setup the application in local enviornment.
 ```
   pipenv shell
 ```
@@ -71,5 +71,5 @@ To run tests, run the following command in the terminal
 
 ### Trade-offs and Imporovents
 
-- I have used JSON Web Token(jwt) for authentication. But due to dependancy between jwt and PyJWT, it is better to upgrade the application to Flask-JWT-Extended.
-- It is better to dockerize the application for easy and effective deployment. 
+- I have used JSON Web Token(jwt) for authentication. But due to dependancy between jwt and PyJWT, have to upgrade the application to Flask-JWT-Extended for better application.
+- Need to dockerize the application for easy and effective deployment. 
