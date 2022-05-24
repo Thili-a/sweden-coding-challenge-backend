@@ -32,7 +32,7 @@ To run APIs, use a client like Postman.
   GET /login
 ```
 For login ```Basic Authorization``` is required.
-![This is an image](./readme_images/login.jpg)
+![This is an image](./readme_images/login.png)
 
 #### Get all users
 
@@ -40,7 +40,7 @@ For login ```Basic Authorization``` is required.
   GET /user
 ```
 In ```Headers``` need to pass the access-token retrieved by the login.
-![This is an image](./readme_images/users.jpg)
+![This is an image](./readme_images/users.png)
 
 ## Technical choices and Architecture
 
@@ -67,7 +67,7 @@ To run tests, run the following command in the terminal
 ```
   python -m pytest
 ```
-![This is an image](./readme_images/tests.jpg)
+![This is an image](./readme_images/tests.png)
 
 ### Trade-offs and Imporovents
 
