@@ -10,6 +10,7 @@ from functools import wraps
 
 auth = Blueprint('auth', __name__)
 
+"""function for accepting the access token for authentication"""
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -39,9 +40,11 @@ def index():
 @token_required
 def get_all_users(current_user):
 
+    """if the user is not logged in shows a error message"""
     if not current_user:
         return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
 
+    """get all user data from the database"""
     users = User.query.all()
 
     output = []
@@ -59,11 +62,14 @@ def get_all_users(current_user):
 @token_required
 def get_one_user(current_user, public_id):
 
+    """if the user is not logged in shows a error message"""
     if not current_user:
         return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
 
+    """filter database  user data by public id"""
     user = User.query.filter_by(public_id=public_id).first()
 
+    """if user is not exist in database shows error message"""
     if not user:
         return jsonify({'message' : 'User Not found!'}), 404
 
@@ -75,12 +81,14 @@ def get_one_user(current_user, public_id):
     return jsonify({'user' : user_data})
 
 @auth.route('/user', methods=['POST'])
-# def create_user():
 @token_required
 def create_user(current_user):
+
+    """if the user is not logged in shows a error message"""
     if not current_user:
         return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
 
+    """retrieving request data """
     data = request.get_json()
 
     if not data:
@@ -97,11 +105,15 @@ def create_user(current_user):
 @auth.route('/user/<public_id>', methods=['DELETE'])
 @token_required
 def delete_user(current_user, public_id):
+
+    """if the user is not logged in shows a error message"""
     if not current_user:
         return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
 
+    """filter database  user data by public id"""
     user = User.query.filter_by(public_id=public_id).first()
 
+    """if user is not exist in database shows error message"""
     if not user:
         return jsonify({'message' : 'User Not found!'}), 404
 
@@ -112,19 +124,24 @@ def delete_user(current_user, public_id):
 
 @auth.route('/login')
 def login():
+    """retrieving authorization data"""
     auth = request.authorization
 
+    """if username or password is not set return error"""
     if not auth or not auth.username or not auth.password:
         return make_response('Cannot verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
+    """filter database  user data by username(email)"""
     user = User.query.filter_by(email=auth.username).first()
 
+    """if user is not exist in database shows error message"""
     if not user:
         return make_response('Cannot verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
     if check_password_hash(user.password, auth.password):
+        """genarating the access token"""
         token = jwt.encode({'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, current_app.config['SECRET_KEY'])
 
-        return jsonify({'token' : token.decode('utf-8')})
+        return jsonify({'token' : token})
 
     return make_response('Cannot verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})

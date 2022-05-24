@@ -8,9 +8,12 @@ shortner = Blueprint('shortner', __name__)
 @shortner.route('/create_link', methods=['POST'])
 @token_required
 def create_link(current_user):
+
+    """if the user is not logged in shows a error message"""
     if not current_user:
         return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
 
+    """retrieving request data """
     data = request.get_json()
     if not data:
         return jsonify({'message' : 'Link not found!Check your Inputs!'}), 400
@@ -25,9 +28,12 @@ def create_link(current_user):
 @shortner.route('/delete_link/<short_url>', methods=['DELETE'])
 @token_required
 def delete_user(current_user, short_url):
+
+    """if the user is not logged in shows a error message"""
     if not current_user:
         return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
 
+    """filter database  user data by short url"""
     link = Link.query.filter_by(short_url=short_url).first()
     if not link:
         return jsonify({'message' : 'Link not found!Check your Inputs!'}), 400
@@ -39,5 +45,9 @@ def delete_user(current_user, short_url):
 
 @shortner.route('/<short_url>')
 def redirect_to_original_url(short_url):
+
+    """filter database  user data by short url"""
     link = Link.query.filter_by(short_url=short_url).first_or_404()
+
+    """redirect to the original url"""
     return redirect(link.original_url) 

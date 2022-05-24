@@ -1,61 +1,75 @@
-# The Shortcutter's Coding Challenge
 
-![This is an image](./shortcut.jpg)
+# Task and Solution Description
 
-Hi :wave:
+This is a URL shortner Flask Application.The task includes the user authentication and URL shortner module.
 
-This document describes the challenge for those interested in working with us. As you may have guessed, it revolves around the backend. :tada:
+# Running the Application
 
-## URL Shortener
-Develop a service that lets users create short URLs (like Bitly, Rebrandly, etc.) for their original links.
+- Clone the repository and change to branch ```develop```.
+- In the terminal run the folowing commands to setuop the application in local enviornment.
+```
+  pipenv shell
+```
+```
+  pip install -r requirements.txt
+```
+```
+  pip install -Iv PyJWT==2.4.0
+```
+```
+  export FLASK_APP=app.py 
+```
+- To run the application run ```flask run``` in the terminal. Application will be run on ```http://127.0.0.1:5000```.
 
-Consider this as MVP that is ready for deployment, but try to keep in mind future maintenance and improvements.
-Don't spend too much time on perfecting it, as long as you can discuss the choices you made, what parts could be improved, etc.
+## API Reference
 
-## Functional requirements
+To run APIs, use a client like Postman.
 
-- Service should let users register a new account and authenticate themselves.
-- Service should let authenticated users create shortened URLs.
-- Service should let any user use shortened URLs (e.g., follow redirects to original URLs).
 
-## Technical requirements
+#### Login
 
-- Service has to serve requests over HTTP API.
-- We don't expect UI for this task.
-- User registration could be very simple with just a login(email) and password.
-- You can use any tech solution for storing data but consider that your project has to be easy to launch. For example, if you use any DB consider including deploy scripts or containerization scripts.
-- The same rule for dependencies and libraries. If you use packages that other people are unlikely to have, consider including deploy or containerization scripts.
+```http
+  GET /login
+```
+For login ```Basic Authorization``` is required.
+![This is an image](./readme_images/login.jpg)
 
-## The README
+#### Get all users
 
-Please include README file to your project. Hopefully it will contain following information:
+```http
+  GET /user
+```
+In ```Headers``` need to pass the access-token retrieved by the login.
+![This is an image](./readme_images/users.jpg)
 
-- Start from the task and solution description.
-- Include instructions how to run or deploy your solution.
-- Describe your technical choices and architecture.
-- Add details about trade-offs you have made
-- Add details about things and features you have skipped, or you would like to change if you have additional time for this project.
+## Technical choices and Architecture
 
-## The Review
+Used **Flask** framework with **sqlite** database for the URL shortner Application.
 
-During the review process we'll look at:
+```bash
+├── app.py
+├── auth.py
+├── shortner.py
+├── models.py
+├── tests
+│   ├── conftest.py
+│   ├── test_auth.py
+│   └── test_shortner.py
+├── requirements.txt
+└── README.md
+```
 
-- We've been able to run your project.
-- Your VCS history, with hopefully more than 1 commit
-- The project structure.
-- The code architecture.
-- Unit & integration tests.
-- Good coding practices.
-- Consistent coding style and formatting
-- Names and naming conventions.
-- Good use of comments.
-- Lint warnings and code smells.
 
-## The End
+## Running Tests
 
-We don't like goodbyes, so why not stay in touch? Follow us on LinkedIn
-[:norway:](https://no.linkedin.com/company/shortcut-as)
-[:denmark:](https://www.linkedin.com/company/shortcut-global/)
-[:romania:](https://www.linkedin.com/company/shortcut-bucharest/)
-[:sweden:](https://www.linkedin.com/company/shortcut-sweden)
-We also appreciate any feedback you may have regarding this coding assignment, good or bad. Send an email to [post@shortcut.no](mailto:post@shortcut.no) and let us know how we're doing!
+To run tests, run the following command in the terminal
+
+```
+  python -m pytest
+```
+![This is an image](./readme_images/tests.jpg)
+
+### Trade-offs and Imporovents
+
+- I have used JSON Web Token(jwt) for authentication. But due to dependancy between jwt and PyJWT, it is better to upgrade the application to Flask-JWT-Extended.
+- It is better to dockerize the application for easy and effective deployment. 
