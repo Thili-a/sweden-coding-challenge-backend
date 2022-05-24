@@ -3,11 +3,13 @@ from datetime import datetime
 import string
 from random import choices
 
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
+
 
 class Link(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,5 +29,5 @@ class Link(db.Model):
 
         if link:
             return self.generate_short_link()
-        
+
         return short_url

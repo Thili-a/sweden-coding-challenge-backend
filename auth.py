@@ -11,6 +11,8 @@ from functools import wraps
 auth = Blueprint('auth', __name__)
 
 """function for accepting the access token for authentication"""
+
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -20,29 +22,32 @@ def token_required(f):
             token = request.headers['access-token']
 
         if not token:
-            return jsonify({'message' : 'Access Token is not present!'}), 401
+            return jsonify({'message': 'Access Token is not present!'}), 401
 
-        try: 
-            data = jwt.decode(token, current_app.config['SECRET_KEY'],algorithms=["HS256"])
-            current_user = User.query.filter_by(public_id=data['public_id']).first()
+        try:
+            data = jwt.decode(
+                token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
+            current_user = User.query.filter_by(
+                public_id=data['public_id']).first()
         except:
-            return jsonify({'message' : 'Access Token is invalid!'}), 401
+            return jsonify({'message': 'Access Token is invalid!'}), 401
 
         return f(current_user, *args, **kwargs)
 
     return decorated
 
+
 @auth.route('/ping')
 def index():
     return 'ok'
 
+
 @auth.route('/user', methods=['GET'])
 @token_required
 def get_all_users(current_user):
-
     """if the user is not logged in shows a error message"""
     if not current_user:
-        return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
+        return jsonify({'message': 'Authentication failed. Cannot perform that function!'}), 401
 
     """get all user data from the database"""
     users = User.query.all()
@@ -56,71 +61,73 @@ def get_all_users(current_user):
         user_data['password'] = user.password
         output.append(user_data)
 
-    return jsonify({'users' : output})
+    return jsonify({'users': output})
+
 
 @auth.route('/user/<public_id>', methods=['GET'])
 @token_required
 def get_one_user(current_user, public_id):
-
     """if the user is not logged in shows a error message"""
     if not current_user:
-        return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
+        return jsonify({'message': 'Authentication failed. Cannot perform that function!'}), 401
 
     """filter database  user data by public id"""
     user = User.query.filter_by(public_id=public_id).first()
 
     """if user is not exist in database shows error message"""
     if not user:
-        return jsonify({'message' : 'User Not found!'}), 404
+        return jsonify({'message': 'User Not found!'}), 404
 
     user_data = {}
     user_data['public_id'] = user.public_id
     user_data['email'] = user.email
     user_data['password'] = user.password
 
-    return jsonify({'user' : user_data})
+    return jsonify({'user': user_data})
+
 
 @auth.route('/user', methods=['POST'])
 @token_required
 def create_user(current_user):
-
     """if the user is not logged in shows a error message"""
     if not current_user:
-        return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
+        return jsonify({'message': 'Authentication failed. Cannot perform that function!'}), 401
 
     """retrieving request data """
     data = request.get_json()
 
     if not data:
-        return jsonify({'message' : 'New user not created!Please check the input data!'}), 400
+        return jsonify({'message': 'New user not created!Please check the input data!'}), 400
 
     hashed_password = generate_password_hash(data['password'], method='sha256')
 
-    new_user = User(public_id=str(uuid.uuid4()), email=data['email'], password=hashed_password)
+    new_user = User(public_id=str(uuid.uuid4()),
+                    email=data['email'], password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({'message' : 'New user created Succesfully!'}), 201
+    return jsonify({'message': 'New user created Succesfully!'}), 201
+
 
 @auth.route('/user/<public_id>', methods=['DELETE'])
 @token_required
 def delete_user(current_user, public_id):
-
     """if the user is not logged in shows a error message"""
     if not current_user:
-        return jsonify({'message' : 'Authentication failed. Cannot perform that function!'}), 401
+        return jsonify({'message': 'Authentication failed. Cannot perform that function!'}), 401
 
     """filter database  user data by public id"""
     user = User.query.filter_by(public_id=public_id).first()
 
     """if user is not exist in database shows error message"""
     if not user:
-        return jsonify({'message' : 'User Not found!'}), 404
+        return jsonify({'message': 'User Not found!'}), 404
 
     db.session.delete(user)
     db.session.commit()
 
-    return jsonify({'message' : 'The user has been deleted!'}), 200
+    return jsonify({'message': 'The user has been deleted!'}), 200
+
 
 @auth.route('/login')
 def login():
@@ -129,19 +136,20 @@ def login():
 
     """if username or password is not set return error"""
     if not auth or not auth.username or not auth.password:
-        return make_response('Cannot verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+        return make_response('Cannot verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
     """filter database  user data by username(email)"""
     user = User.query.filter_by(email=auth.username).first()
 
     """if user is not exist in database shows error message"""
     if not user:
-        return make_response('Cannot verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+        return make_response('Cannot verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
     if check_password_hash(user.password, auth.password):
         """genarating the access token"""
-        token = jwt.encode({'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, current_app.config['SECRET_KEY'])
+        token = jwt.encode({'public_id': user.public_id, 'exp': datetime.datetime.utcnow(
+        ) + datetime.timedelta(minutes=30)}, current_app.config['SECRET_KEY'])
 
-        return jsonify({'token' : token})
+        return jsonify({'token': token})
 
-    return make_response('Cannot verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+    return make_response('Cannot verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
